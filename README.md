@@ -1,5 +1,4 @@
-# battleship
+# Battleship
 
-[Wiki](https://github.com/pxlit-projects/battleship/wiki)
-
-Project  1TIN 2019-2020 - Build the Battleship game
+Deze repository bevat de startcode voor het project 1TIN 2019-2020.
+In de **[Wiki](https://github.com/pxlit-projects/battleship/wiki)** vind je de opgave en allerlei technische informatie terug.
