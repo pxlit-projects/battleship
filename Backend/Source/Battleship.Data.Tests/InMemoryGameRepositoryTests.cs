@@ -6,12 +6,14 @@ using Battleship.Domain;
 using Battleship.Domain.GameDomain.Contracts;
 using Battleship.TestTools;
 using Battleship.TestTools.Builders;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using Guts.Client.Shared.TestTools;
 using NUnit.Framework;
 
 namespace Battleship.Data.Tests
 {
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "InMemoryGameRepo", @"Battleship.Data\Repositories\InMemoryGameRepository.cs")]
     public class InMemoryGameRepositoryTests : TestBase
     {
         private InMemoryGameRepository _repo;

@@ -3,11 +3,13 @@ using Battleship.Domain.GridDomain;
 using Battleship.Domain.GridDomain.Contracts;
 using Battleship.TestTools;
 using Battleship.TestTools.Builders;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using NUnit.Framework;
 
 namespace Battleship.Domain.Tests
 {
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "Grid", @"Battleship.Domain\GridDomain\Grid.cs")]
     public class GridTests : TestBase
     {
         [MonitoredTest("Constructor - Should initialize the grid squares")]

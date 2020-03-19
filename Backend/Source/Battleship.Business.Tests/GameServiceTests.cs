@@ -10,16 +10,17 @@ using Battleship.Domain.GameDomain;
 using Battleship.Domain.GameDomain.Contracts;
 using Battleship.Domain.GridDomain;
 using Battleship.Domain.GridDomain.Contracts;
-using Battleship.Domain.PlayerDomain;
 using Battleship.Domain.PlayerDomain.Contracts;
 using Battleship.TestTools;
 using Battleship.TestTools.Builders;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using Moq;
 using NUnit.Framework;
 
 namespace Battleship.Business.Tests
 {
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "GameService", @"Battleship.Business\Services\GameService.cs")]
     public class GameServiceTests : TestBase
     {
         private Mock<IGameFactory> _gameFactoryMock;

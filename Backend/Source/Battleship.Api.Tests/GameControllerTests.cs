@@ -13,6 +13,7 @@ using Battleship.Domain.GameDomain;
 using Battleship.Domain.GridDomain;
 using Battleship.TestTools;
 using Battleship.TestTools.Builders;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -23,7 +24,7 @@ using NUnit.Framework;
 
 namespace Battleship.Api.Tests
 {
-    [TestFixture]
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "GamesCtlr", @"Battleship.Api\Controllers\GameController.cs")]
     public class GameControllerTests : TestBase
     {
         private GameController _controller;

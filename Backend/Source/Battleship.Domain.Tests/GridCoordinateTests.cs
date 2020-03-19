@@ -1,11 +1,13 @@
 using Battleship.Domain.GridDomain;
 using Battleship.TestTools;
 using Battleship.TestTools.Builders;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using NUnit.Framework;
 
 namespace Battleship.Domain.Tests
 {
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "GridCoordinate", @"Battleship.Domain\GridDomain\GridCoordinate.cs")]
     public class GridCoordinateTests : TestBase
     {
         [MonitoredTest("CreateRandom - Should create a coordinate within the bounds determined by the grid size")]

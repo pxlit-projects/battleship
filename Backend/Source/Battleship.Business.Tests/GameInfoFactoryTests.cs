@@ -3,16 +3,18 @@ using Battleship.Business.Models;
 using Battleship.Business.Models.Contracts;
 using Battleship.Domain.FleetDomain;
 using Battleship.Domain.GameDomain.Contracts;
-using Battleship.Domain.PlayerDomain;
 using Battleship.Domain.PlayerDomain.Contracts;
 using Battleship.TestTools;
 using Battleship.TestTools.Builders;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using Moq;
 using NUnit.Framework;
 
 namespace Battleship.Business.Tests
 {
+
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "GameInfoFactory", @"Battleship.Business\Models\GameInfoFactory.cs")]
     public class GameInfoFactoryTests : TestBase
     {
         private Mock<IGridInfoFactory> _gridInfoFactoryMock;
@@ -79,7 +81,7 @@ namespace Battleship.Business.Tests
                 "The IShipInfoFactory should create the list from all the sunken ships of the opponent.");
         }
 
-        [Test]
+        [MonitoredTest("EXTRA - CreateFromGame - Should not show sunken ships of opponent if sunken ships do not need to be reported")]
         public void EXTRA_CreateFromGame_ShouldNotShowSunkenShipsOfOpponentIfSunkenShipsDoNotNeedToBeReported()
         {
             //Arrange

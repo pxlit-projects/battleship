@@ -1,7 +1,6 @@
 ﻿using System;
 using Battleship.Domain.GameDomain;
 using Battleship.Domain.GameDomain.Contracts;
-using Battleship.Domain.PlayerDomain;
 using Battleship.Domain.PlayerDomain.Contracts;
 using Moq;
 

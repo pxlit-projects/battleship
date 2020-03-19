@@ -2,11 +2,13 @@ using Battleship.Domain.GridDomain;
 using Battleship.Domain.GridDomain.Contracts;
 using Battleship.TestTools;
 using Battleship.TestTools.Builders;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using NUnit.Framework;
 
 namespace Battleship.Domain.Tests
 {
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "GridSquare", @"Battleship.Domain\GridDomain\GridSquare.cs")]
     public class GridSquareTests : TestBase
     {
         private bool _onHitByBombEventTriggered;
@@ -53,7 +55,7 @@ namespace Battleship.Domain.Tests
                 "You can invoke the event with this statement: 'OnHitByBomb?.Invoke(this);'.");
         }
 
-        [Test]
+        [MonitoredTest("EXTRA - HitByBomb - Should increase number of bombs on each hit")]
         public void EXTRA_HitByBomb_ShouldIncreaseNumberOfBombsOnEachHit()
         {
             //Arrange

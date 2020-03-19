@@ -1,11 +1,13 @@
 using System;
 using Battleship.Domain.GameDomain;
 using Battleship.TestTools;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using NUnit.Framework;
 
 namespace Battleship.Domain.Tests
 {
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "GameSettings", @"Battleship.Domain\GameDomain\GameSettings.cs")]
     public class GameSettingsTests : TestBase
     {
         private GameSettings _settings;
@@ -42,7 +44,7 @@ namespace Battleship.Domain.Tests
             _settings.GridSize = RandomGenerator.Next(11,15);
         }
 
-        [Test]
+        [MonitoredTest("EXTRA - NumberOfTurnsBeforeAShipCanBeMoved - Can only contain values from 1 to 10")]
         public void EXTRA_NumberOfTurnsBeforeAShipCanBeMoved_CanOnlyContainValuesFrom1To10()
         {
             //Act + Assert

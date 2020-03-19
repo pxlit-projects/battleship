@@ -8,11 +8,13 @@ using Battleship.Domain.GridDomain.Contracts;
 using Battleship.Domain.PlayerDomain;
 using Battleship.TestTools;
 using Battleship.TestTools.Builders;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using NUnit.Framework;
 
 namespace Battleship.Domain.Tests
 {
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "RandomShooting", @"Battleship.Domain\PlayerDomain\RandomShootingStrategy.cs")]
     public class RandomShootingStrategyTests : TestBase
     {
         private RandomShootingStrategy _strategy;
@@ -25,7 +27,6 @@ namespace Battleship.Domain.Tests
             var settings = new GameSettings();
             _gridBuilder = new GridBuilder(settings.GridSize);
             _grid = _gridBuilder.Build();
-
 
             _strategy = new RandomShootingStrategy(settings, _grid);
         }

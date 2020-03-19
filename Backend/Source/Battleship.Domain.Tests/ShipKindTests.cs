@@ -2,11 +2,13 @@ using System.Linq;
 using Battleship.Domain.FleetDomain;
 using Battleship.Domain.GridDomain;
 using Battleship.TestTools;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using NUnit.Framework;
 
 namespace Battleship.Domain.Tests
 {
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "ShipKind", @"Battleship.Domain\FleetDomain\ShipKind.cs")]
     public class ShipKindTests : TestBase
     {
         [MonitoredTest("GenerateRandomSegmentCoordinates - Should generate valid random ship segment coordinates")]

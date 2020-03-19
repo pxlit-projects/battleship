@@ -6,6 +6,7 @@ using Battleship.Domain.PlayerDomain;
 using Battleship.Domain.PlayerDomain.Contracts;
 using Battleship.TestTools;
 using Battleship.TestTools.Builders;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using Guts.Client.Shared.TestTools;
 using Microsoft.CodeAnalysis.CSharp;
@@ -15,6 +16,7 @@ using NUnit.Framework;
 
 namespace Battleship.Domain.Tests
 {
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "ComputerPlayer", @"Battleship.Domain\PlayerDomain\ComputerPlayer.cs")]
     public class ComputerPlayerTests : TestBase
     {
         private ComputerPlayer _computerPlayer;

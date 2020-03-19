@@ -4,12 +4,14 @@ using Battleship.Domain.GridDomain;
 using Battleship.Domain.GridDomain.Contracts;
 using Battleship.TestTools;
 using Battleship.TestTools.Builders;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using Moq;
 using NUnit.Framework;
 
 namespace Battleship.Domain.Tests
 {
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "Ship", @"Battleship.Domain\FleetDomain\Ship.cs")]
     public class ShipTests : TestBase
     {
         private ShipKind _kind;
@@ -93,8 +95,6 @@ namespace Battleship.Domain.Tests
                     "the ship should not handle the OnHitByBomb event of the GridSquare anymore. " +
                     "Use the '-=' operator on the 'OnHitByBomb' event to remove the event handler.");
             }
-
-            
         }
 
         [MonitoredTest("CanBeFoundAtCoordinate - Should return false when no Squares are set")]

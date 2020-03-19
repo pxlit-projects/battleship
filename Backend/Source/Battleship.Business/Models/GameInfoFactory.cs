@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using Battleship.Business.Models.Contracts;
 using Battleship.Domain.GameDomain.Contracts;
-using Battleship.Domain.PlayerDomain.Contracts;
 
 namespace Battleship.Business.Models
 {

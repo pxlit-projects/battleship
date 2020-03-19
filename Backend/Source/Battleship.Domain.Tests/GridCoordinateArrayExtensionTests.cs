@@ -1,10 +1,12 @@
 using Battleship.Domain.GridDomain;
 using Battleship.TestTools;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using NUnit.Framework;
 
 namespace Battleship.Domain.Tests
 {
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "GridCoordinateArray", @"Battleship.Domain\GridDomain\GridCoordinateArrayExtensions.cs")]
     public class GridCoordinateArrayExtensionTests : TestBase
     {
         [MonitoredTest("HasAnyOutOfBounds - Should return false if all coordinates are on the grid")]

@@ -2,7 +2,6 @@
 using Battleship.Domain.FleetDomain.Contracts;
 using Battleship.Domain.GridDomain;
 using Battleship.Domain.GridDomain.Contracts;
-using Battleship.Domain.PlayerDomain;
 using Battleship.Domain.PlayerDomain.Contracts;
 using Moq;
 

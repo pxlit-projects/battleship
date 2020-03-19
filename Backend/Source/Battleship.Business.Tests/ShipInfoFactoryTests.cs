@@ -6,12 +6,14 @@ using Battleship.Domain.FleetDomain;
 using Battleship.Domain.FleetDomain.Contracts;
 using Battleship.Domain.GridDomain;
 using Battleship.TestTools;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using Moq;
 using NUnit.Framework;
 
 namespace Battleship.Business.Tests
 {
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "GridInfoFactory", @"Battleship.Business\Models\ShipInfoFactory.cs")]
     public class ShipInfoFactoryTests : TestBase
     {
         private ShipInfoFactory _factory;

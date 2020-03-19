@@ -55,7 +55,7 @@ namespace Battleship.Domain.GameDomain
 
         public GameSettings()
         {
-            throw new NotImplementedException("Constructor of GameSettings class is not implemented");
+            //TOOD: initialize default values for the properties
         }
     }
 }

@@ -6,12 +6,14 @@ using Battleship.Domain.PlayerDomain;
 using Battleship.Domain.PlayerDomain.Contracts;
 using Battleship.TestTools;
 using Battleship.TestTools.Builders;
+using Guts.Client.Core;
 using Guts.Client.Shared;
 using Moq;
 using NUnit.Framework;
 
 namespace Battleship.Domain.Tests
 {
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "HumanPlayer", @"Battleship.Domain\PlayerDomain\HumanPlayer.cs")]
     public class HumanPlayerTests : TestBase
     {
         private HumanPlayer _humanPlayer;

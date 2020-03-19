@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Battleship.Business.Models.Contracts;
 using Battleship.Domain.FleetDomain;
 using Battleship.Domain.FleetDomain.Contracts;
