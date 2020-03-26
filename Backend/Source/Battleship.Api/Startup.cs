@@ -85,7 +85,7 @@ namespace Battleship.Api
                     };
                 });
 
-            services.AddSwaggerDocument(config =>
+            services.AddOpenApiDocument(config =>
             {
                 config.PostProcess = document =>
                 {
