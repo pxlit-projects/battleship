@@ -68,7 +68,7 @@ namespace Battleship.Domain.Tests
         public void ShootAutomatically_ShouldUseTheShootingStrategyToShoot()
         {
             //Arrange
-            _computerPlayer.ReloadBombs(); 
+            _computerPlayer.ReloadBombs();
 
             var playerBuilder = new PlayerBuilder();
             IPlayer opponent = playerBuilder.Build();
@@ -88,7 +88,7 @@ namespace Battleship.Domain.Tests
             opponentGridMock.Verify(g => g.Shoot(determinedCoordinate), Times.AtLeastOnce,
                 "Use the ShootAt method to shoot at the opponent on the coordinate determined by the strategy.");
 
-            _shootingStrategyMock.Verify(ss => ss.RegisterShotResult(It.IsAny<ShotResult>()),
+            _shootingStrategyMock.Verify(ss => ss.RegisterShotResult(It.IsAny<GridCoordinate>(), It.IsAny<ShotResult>()),
                 "After shooting, the result should be registered with the shooting strategy.");
         }
     }

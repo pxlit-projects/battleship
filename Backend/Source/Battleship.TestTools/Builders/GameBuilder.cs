@@ -9,7 +9,7 @@ namespace Battleship.TestTools.Builders
     public class GameBuilder
     {
         private readonly Mock<IGame> _gameMock;
-        
+
         public GameBuilder()
         {
             _gameMock = new Mock<IGame>();

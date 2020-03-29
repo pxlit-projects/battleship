@@ -14,6 +14,6 @@ namespace Battleship.Domain.PlayerDomain.Contracts
         /// it should let the shooting strategy know what the result was
         /// so it can make a better judgment on where to shoot next.
         /// </summary>
-        void RegisterShotResult(ShotResult shotResult);
+        void RegisterShotResult(GridCoordinate target, ShotResult shotResult);
     }
 }

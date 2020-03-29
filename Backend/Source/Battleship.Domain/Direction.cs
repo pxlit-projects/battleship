@@ -4,7 +4,7 @@ using Battleship.Domain.GridDomain;
 namespace Battleship.Domain
 {
     //DO NOT TOUCH THIS FILE!
-    
+
     /// <summary>
     /// Indicates a direction (e.g. North, SoutWest, ...)
     /// </summary>
@@ -25,6 +25,11 @@ namespace Battleship.Domain
         /// Array of all possible directions
         /// </summary>
         public static Direction[] AllDirections => new[] { North, East, South, West, NorthEast, SouthEast, SouthWest, NorthWest };
+
+        /// <summary>
+        /// Array of directions that are horizontal or vertical
+        /// </summary>
+        public static Direction[] BasicDirections => new[] { North, East, South, West };
 
         /// <summary>
         /// Horizontal direction.
@@ -93,5 +98,36 @@ namespace Battleship.Domain
             return direction;
 
         }
+
+        #region Equality overrides
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Direction);
+        }
+
+        protected bool Equals(Direction other)
+        {
+            if (ReferenceEquals(other, null)) return false;
+            return XStep == other.XStep && YStep == other.YStep;
+        }
+
+        public static bool operator ==(Direction a, Direction b)
+        {
+            if (ReferenceEquals(a, null) && ReferenceEquals(b, null)) return true;
+            if (ReferenceEquals(a, null) || ReferenceEquals(b, null)) return false;
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(Direction a, Direction b)
+        {
+            return !(a == b);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(XStep, YStep);
+        }
+
+        #endregion
     }
 }

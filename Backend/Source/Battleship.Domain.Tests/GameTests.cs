@@ -86,7 +86,8 @@ namespace Battleship.Domain.Tests
             //Assert
             Assert.That(result.IsSuccess, Is.True, "A success result should be returned.");
             Assert.That(_game.IsStarted, Is.True, "Game is not marked as started.");
-            Assert.That(_game.Player1.HasBombsLoaded, Is.True, "Bombs for player 1 are not loaded.");
+            var player1Mock = _player1Builder.BuildMock();
+            player1Mock.Verify(p => p.ReloadBombs(), Times.Once, "Bombs for player 1 are not loaded.");
         }
 
         [MonitoredTest("Start - Should fail when the fleet of player 1 is not positioned")]

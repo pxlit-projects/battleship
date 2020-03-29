@@ -1,6 +1,7 @@
 ﻿using Battleship.Domain.FleetDomain;
 using Battleship.Domain.FleetDomain.Contracts;
 using Battleship.Domain.GridDomain;
+using Battleship.Domain.GridDomain.Contracts;
 using Moq;
 
 namespace Battleship.TestTools.Builders
@@ -20,9 +21,21 @@ namespace Battleship.TestTools.Builders
             _shipMock.Setup(s => s.CanBeFoundAtCoordinate(It.IsAny<GridCoordinate>())).Returns(false);
         }
 
-        public ShipBuilder WithSquares()
+        public ShipBuilder WithSquares(GridSquareStatus status = GridSquareStatus.Untouched)
         {
-            _shipMock.SetupGet(s => s.Squares).Returns(new GridSquareArrayBuilder(_kind).BuildArray());
+            _shipMock.SetupGet(s => s.Squares).Returns(new GridSquareArrayBuilder(_kind).WithStatus(status).BuildArray());
+            return this;
+        }
+
+        public ShipBuilder WithSquares(IGridSquare[] squares)
+        {
+            _shipMock.SetupGet(s => s.Squares).Returns(squares);
+            return this;
+        }
+
+        public ShipBuilder WithHasSunk(bool hasSunk)
+        {
+            _shipMock.SetupGet(s => s.HasSunk).Returns(hasSunk);
             return this;
         }
 

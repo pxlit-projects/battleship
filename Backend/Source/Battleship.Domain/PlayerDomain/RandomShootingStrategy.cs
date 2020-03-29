@@ -18,7 +18,7 @@ namespace Battleship.Domain.PlayerDomain
             throw new NotImplementedException("DetermineTargetCoordinate method of RandomShootingStrategy class is not implemented");
         }
 
-        public void RegisterShotResult(ShotResult shotResult)
+        public void RegisterShotResult(GridCoordinate target, ShotResult shotResult)
         {
             //No need do do anything here. Smarter shooting strategies will care more about the result of a shot...
         }

@@ -1,4 +1,5 @@
-﻿using Battleship.Domain.GridDomain;
+﻿using Battleship.Domain;
+using Battleship.Domain.GridDomain;
 using Battleship.Domain.GridDomain.Contracts;
 using Moq;
 
@@ -20,7 +21,7 @@ namespace Battleship.TestTools.Builders
 
             _squareBuilders = new GridSquareBuilder[size, size];
             _squares = new IGridSquare[size, size];
-            
+
             for (int i = 0; i < size; i++)
             {
                 for (int j = 0; j < size; j++)
@@ -43,7 +44,7 @@ namespace Battleship.TestTools.Builders
             return this;
         }
 
-        public GridBuilder WithAllSquaresWithStatus( GridSquareStatus status)
+        public GridBuilder WithAllSquaresWithStatus(GridSquareStatus status)
         {
             for (int i = 0; i < _size; i++)
             {
