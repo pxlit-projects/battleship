@@ -272,15 +272,15 @@ namespace Battleship.Domain.Tests
             //Arrange
             IShip shipToMove = _internalDictionary.Values.NextRandomElement();
 
-            GridCoordinate[] targetCoordinates = CreateAlignedAndLinkedGridCoordinates(shipToMove.Kind.Size, out bool horizontal);
-
-            int invalidCoordinateIndex = RandomGenerator.Next(0, shipToMove.Kind.Size);
+            GridCoordinate[] targetCoordinates = CreateAlignedAndLinkedGridCoordinates(shipToMove.Kind.Size, out bool horizontal)
+                                                    .OrderByDescending(c => horizontal ? c.Column : c.Row)
+                                                    .ToArray();
             int gridSize = _gridMock.Object.Size;
 
             //break the link
-            int row = horizontal ? targetCoordinates[invalidCoordinateIndex].Row : (targetCoordinates.Max(c => c.Row) + 1) % gridSize;
-            int column = horizontal ? (targetCoordinates.Max(c => c.Column) + 1) % gridSize : targetCoordinates[invalidCoordinateIndex].Column;
-            targetCoordinates[invalidCoordinateIndex] = new GridCoordinate(row, column);
+            int row = horizontal ? targetCoordinates[0].Row : (targetCoordinates.Max(c => c.Row) + 1) % gridSize;
+            int column = horizontal ? (targetCoordinates.Max(c => c.Column) + 1) % gridSize : targetCoordinates[0].Column;
+            targetCoordinates[0] = new GridCoordinate(row, column);
 
             //Act
             Result result = _fleet.TryMoveShipTo(shipToMove.Kind, targetCoordinates, _gridMock.Object);
