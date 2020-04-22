@@ -274,7 +274,7 @@ namespace Battleship.Domain.Tests
 
             GridCoordinate[] targetCoordinates = CreateAlignedAndLinkedGridCoordinates(shipToMove.Kind.Size, out bool horizontal);
 
-            int invalidCoordinateIndex = RandomGenerator.Next(0, shipToMove.Kind.Size);
+            int invalidCoordinateIndex = RandomGenerator.Next(1, shipToMove.Kind.Size);
             int gridSize = _gridMock.Object.Size;
 
             //break the link
@@ -371,7 +371,7 @@ namespace Battleship.Domain.Tests
                 "You must use the TryMoveShipTo method to position each ship on the grid.");
 
             var numberOfWhileLoops = method.Body
-                .DescendantNodes().Count(node => node is WhileStatementSyntax);
+                .DescendantNodes().Count(node => node is WhileStatementSyntax || node is DoStatementSyntax);
 
             Assert.That(numberOfWhileLoops, Is.EqualTo(1),
                 "You must use exactly one while loop. For each ship you must try to move it onto the grid until it succeeds.");
