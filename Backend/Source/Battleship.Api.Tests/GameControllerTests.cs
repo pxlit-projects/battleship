@@ -75,8 +75,8 @@ namespace Battleship.Api.Tests
             var createdGameInfoMock = new Mock<IGameInfo>();
             createdGameInfoMock.SetupGet(gi => gi.Id).Returns(createdGameId);
 
-            _gameServiceMock.Setup(service => service.CreateGameForUser(settings, _loggedInUser)).Returns(createdGameInfoMock.Object);
-
+            _gameServiceMock.Setup(service => service.CreateGameForUser(It.IsAny<GameSettings>(), It.IsAny<User>()))
+                .Returns(createdGameInfoMock.Object);
 
             //Act
             var result = _controller.CreateNewSinglePlayerGame(settings).Result as CreatedAtActionResult;
@@ -84,8 +84,10 @@ namespace Battleship.Api.Tests
             //Assert
             Assert.That(result, Is.Not.Null, "An instance of 'CreatedAtActionResult' should be returned.");
 
-            _userManagerMock.Verify();
-            _gameServiceMock.Verify();
+            _userManagerMock.Verify(manager => manager.GetUserAsync(It.IsAny<ClaimsPrincipal>()), Times.Once,
+                "The 'GetUserAsync' of the UserManager is not called");
+            _gameServiceMock.Verify(service => service.CreateGameForUser(settings, _loggedInUser), Times.Once,
+                "The 'CreateGameForUser' method of the IGameService is not called correctly");
 
             Assert.That(result.ActionName, Is.EqualTo(nameof(GameController.GetGameInfo)), "The 'CreatedAtActionResult' does not refer to the right action.");
             Assert.That(result.RouteValues["id"], Is.EqualTo(createdGameId), "The 'CreatedAtActionResult' does not refer to the right game id.");
@@ -108,10 +110,12 @@ namespace Battleship.Api.Tests
             //Assert
             Assert.That(result, Is.Not.Null, "An instance of 'CreatedAtActionResult' should be returned.");
 
-            _userManagerMock.Verify();
+            _userManagerMock.Verify(manager => manager.GetUserAsync(It.IsAny<ClaimsPrincipal>()), Times.Once,
+                "The 'GetUserAsync' of the UserManager is not called");
             _gameServiceMock.Verify(
                 service => service.CreateGameForUser(It.Is<GameSettings>(settings => AreDefaultSettings(settings)),
-                    _loggedInUser), Times.Once, "The settings used are not default settings.");
+                    _loggedInUser), Times.Once,
+                "The 'CreateGameForUser' of the IGameService is not called at all or not called with default settings.");
 
             Assert.That(result.ActionName, Is.EqualTo(nameof(GameController.GetGameInfo)), "The 'CreatedAtActionResult' does not refer to the right action.");
             Assert.That(result.RouteValues["id"], Is.EqualTo(createdGameId), "The 'CreatedAtActionResult' does not refer to the right game id.");
@@ -131,8 +135,14 @@ namespace Battleship.Api.Tests
 
             //Assert
             Assert.That(result, Is.Not.Null, "An instance of 'BadRequestObjectResult' should be returned.");
-            _userManagerMock.Verify();
-            _gameServiceMock.Verify();
+
+            _userManagerMock.Verify(manager => manager.GetUserAsync(It.IsAny<ClaimsPrincipal>()), Times.Once,
+                "The 'GetUserAsync' of the UserManager is not called");
+
+            _gameServiceMock.Verify(service =>
+                    service.CreateGameForUser(It.IsAny<GameSettings>(), It.IsAny<User>()), Times.Once,
+                "The 'CreateGameForUser' of the IGameService is not called.");
+
             var serializableError = result.Value as SerializableError;
             Assert.IsNotNull(serializableError, "The 'BadRequestObjectResult' should contain a ModelState error collection");
             Assert.That(serializableError.Count, Is.EqualTo(1), "The 'BadRequestObjectResult' should exactly one error");
@@ -146,7 +156,7 @@ namespace Battleship.Api.Tests
             var existingGameInfoMock = new Mock<IGameInfo>();
             existingGameInfoMock.SetupGet(gi => gi.Id).Returns(existingGameId);
 
-            _gameServiceMock.Setup(service => service.GetGameInfoForPlayer(existingGameId, _loggedInUser.Id)).Returns(existingGameInfoMock.Object);
+            _gameServiceMock.Setup(service => service.GetGameInfoForPlayer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(existingGameInfoMock.Object);
 
             //Act
             var result = _controller.GetGameInfo(existingGameId).Result as OkObjectResult;
@@ -154,8 +164,10 @@ namespace Battleship.Api.Tests
             //Assert
             Assert.That(result, Is.Not.Null, "An instance of 'OkObjectResult' should be returned.");
 
-            _userManagerMock.Verify();
-            _gameServiceMock.Verify();
+            _userManagerMock.Verify(manager => manager.GetUserAsync(It.IsAny<ClaimsPrincipal>()), Times.Once,
+                "The 'GetUserAsync' of the UserManager is not called");
+            _gameServiceMock.Verify(service => service.GetGameInfoForPlayer(existingGameId, _loggedInUser.Id),
+                Times.Once, "The 'GetGameInfoForPlayer' of the IGameService is not called correctly.");
 
             Assert.That(result.Value, Is.SameAs(existingGameInfoMock.Object),
                 "The 'OkObjectResult' does not hold the gameInfo object returned by the game service.");
@@ -173,8 +185,10 @@ namespace Battleship.Api.Tests
             //Assert
             Assert.That(result, Is.Not.Null, "An instance of 'NotFoundResult' should be returned.");
 
-            _userManagerMock.Verify();
-            _gameServiceMock.Verify();
+            _userManagerMock.Verify(manager => manager.GetUserAsync(It.IsAny<ClaimsPrincipal>()), Times.Once,
+                "The 'GetUserAsync' of the UserManager is not called");
+            _gameServiceMock.Verify(service => service.GetGameInfoForPlayer(It.IsAny<Guid>(), It.IsAny<Guid>()),
+                Times.Once, "The 'GetGameInfoForPlayer' of the IGameService is not called.");
         }
 
         [MonitoredTest("StartGame - Should use game service to start a game")]
@@ -183,15 +197,19 @@ namespace Battleship.Api.Tests
             //Arrange
             Guid gameId = Guid.NewGuid();
             Result expectedResult = Result.CreateSuccessResult();
-            _gameServiceMock.Setup(service => service.StartGame(gameId, _loggedInUser.Id)).Returns(expectedResult);
+            _gameServiceMock.Setup(service => service.StartGame(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(expectedResult);
 
             //Act
             var result = _controller.StartGame(gameId).Result as OkObjectResult;
 
             //Assert
             Assert.That(result, Is.Not.Null, "An instance of 'OkObjectResult' should be returned.");
-            _userManagerMock.Verify();
-            _gameServiceMock.Verify();
+
+            _userManagerMock.Verify(manager => manager.GetUserAsync(It.IsAny<ClaimsPrincipal>()), Times.Once,
+                "The 'GetUserAsync' of the UserManager is not called");
+            _gameServiceMock.Verify(service => service.StartGame(gameId, _loggedInUser.Id),
+                Times.Once, "The 'StartGame' of the IGameService is not called correctly. The id of the game and the id of the user should be provided.");
+
             Assert.That(result.Value, Is.SameAs(expectedResult));
         }
 
@@ -200,7 +218,6 @@ namespace Battleship.Api.Tests
         {
             //Arrange
             Guid gameId = Guid.NewGuid();
-            Result expectedResult = Result.CreateSuccessResult();
             _gameServiceMock.Setup(service => service.StartGame(It.IsAny<Guid>(), It.IsAny<Guid>())).Throws<DataNotFoundException>();
 
             //Act
@@ -208,8 +225,10 @@ namespace Battleship.Api.Tests
 
             //Assert
             Assert.That(result, Is.Not.Null, "An instance of 'NotFoundResult' should be returned.");
-            _userManagerMock.Verify();
-            _gameServiceMock.Verify();
+            _userManagerMock.Verify(manager => manager.GetUserAsync(It.IsAny<ClaimsPrincipal>()), Times.Once,
+                "The 'GetUserAsync' of the UserManager is not called");
+            _gameServiceMock.Verify(service => service.StartGame(It.IsAny<Guid>(), It.IsAny<Guid>()),
+                Times.Once, "The 'StartGame' of the IGameService is not called.");
         }
 
         [MonitoredTest("PositionShipOnGrid - Should use game service to position the ship")]
@@ -220,12 +239,8 @@ namespace Battleship.Api.Tests
             ShipPositioningModel model = new ShipPositioningModelBuilder().Build();
 
             Result expectedResult = Result.CreateSuccessResult();
-            _gameServiceMock.Setup(service =>
-                    service.PositionShipOnGrid(gameId, _loggedInUser.Id,
-                        It.Is<ShipKind>(kind => kind.Code == model.ShipCode),
-                        It.Is<GridCoordinate[]>(ca => ca.Length == model.SegmentCoordinates.Length && 
-                                                      ca.All(c => model.SegmentCoordinates.Any(mc =>
-                                                              c.Row == mc.Row && c.Column == mc.Column)))))
+            _gameServiceMock.Setup(service => service.PositionShipOnGrid(It.IsAny<Guid>(), It.IsAny<Guid>(),
+                    It.IsAny<ShipKind>(), It.IsAny<GridCoordinate[]>()))
                 .Returns(expectedResult);
 
             //Act
@@ -233,8 +248,17 @@ namespace Battleship.Api.Tests
 
             //Assert
             Assert.That(result, Is.Not.Null, "An instance of 'OkObjectResult' should be returned.");
-            _userManagerMock.Verify();
-            _gameServiceMock.Verify();
+
+            _userManagerMock.Verify(manager => manager.GetUserAsync(It.IsAny<ClaimsPrincipal>()), Times.Once,
+                "The 'GetUserAsync' of the UserManager is not called");
+            _gameServiceMock.Verify(service =>
+                    service.PositionShipOnGrid(gameId, _loggedInUser.Id,
+                        It.Is<ShipKind>(kind => kind.Code == model.ShipCode),
+                        It.Is<GridCoordinate[]>(ca => ca.Length == model.SegmentCoordinates.Length &&
+                                                      ca.All(c => model.SegmentCoordinates.Any(mc =>
+                                                          c.Row == mc.Row && c.Column == mc.Column)))),
+                Times.Once, "The 'PositionShipOnGrid' of the IGameService is not called correctly.");
+
             Assert.That(result.Value, Is.SameAs(expectedResult));
         }
 
@@ -275,9 +299,7 @@ namespace Battleship.Api.Tests
 
             ShotResult expectedShotResult = ShotResult.CreateMissed();
             _gameServiceMock.Setup(service =>
-                    service.ShootAtOpponent(gameId, _loggedInUser.Id,
-                        It.Is<GridCoordinate>(
-                            gc => gc.Row == coordinateModel.Row && gc.Column == coordinateModel.Column)))
+                    service.ShootAtOpponent(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GridCoordinate>()))
                 .Returns(expectedShotResult);
 
             //Act
@@ -285,8 +307,15 @@ namespace Battleship.Api.Tests
 
             //Assert
             Assert.That(result, Is.Not.Null, "An instance of 'OkObjectResult' should be returned.");
-            _userManagerMock.Verify();
-            _gameServiceMock.Verify();
+
+            _userManagerMock.Verify(manager => manager.GetUserAsync(It.IsAny<ClaimsPrincipal>()), Times.Once,
+                "The 'GetUserAsync' of the UserManager is not called");
+            _gameServiceMock.Verify(service =>
+                    service.ShootAtOpponent(gameId, _loggedInUser.Id,
+                        It.Is<GridCoordinate>(
+                            gc => gc.Row == coordinateModel.Row && gc.Column == coordinateModel.Column)),
+                Times.Once, "The 'ShootAtOpponent' of the IGameService is not called correctly.");
+
             Assert.That(result.Value, Is.SameAs(expectedShotResult));
         }
 
@@ -325,8 +354,13 @@ namespace Battleship.Api.Tests
 
             //Assert
             Assert.That(result, Is.Not.Null, "An instance of 'BadRequestObjectResult' should be returned.");
-            _userManagerMock.Verify();
-            _gameServiceMock.Verify();
+
+            _userManagerMock.Verify(manager => manager.GetUserAsync(It.IsAny<ClaimsPrincipal>()), Times.Once,
+                "The 'GetUserAsync' of the UserManager is not called");
+            _gameServiceMock.Verify(service =>
+                    service.ShootAtOpponent(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GridCoordinate>()), Times.Once,
+                "The 'ShootAtOpponent' of the IGameService is not called.");
+
             var serializableError = result.Value as SerializableError;
             Assert.IsNotNull(serializableError, "The 'BadRequestObjectResult' should contain a ModelState error collection");
             Assert.That(serializableError.Count, Is.EqualTo(1), "The 'BadRequestObjectResult' should exactly one error");
@@ -339,8 +373,13 @@ namespace Battleship.Api.Tests
 
             //Assert
             Assert.That(result, Is.Not.Null, "An instance of 'BadRequestObjectResult' should be returned.");
-            _userManagerMock.Verify();
-            _gameServiceMock.Verify();
+
+            _userManagerMock.Verify(manager => manager.GetUserAsync(It.IsAny<ClaimsPrincipal>()), Times.Once,
+                "The 'GetUserAsync' of the UserManager is not called");
+            _gameServiceMock.Verify(service =>
+                    service.PositionShipOnGrid(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<ShipKind>(), It.IsAny<GridCoordinate[]>()), Times.Once,
+                "The 'PositionShipOnGrid' of the IGameService is not called.");
+
             var serializableError = result.Value as SerializableError;
             Assert.IsNotNull(serializableError, "The 'BadRequestObjectResult' should contain a ModelState error collection");
             Assert.That(serializableError.Count, Is.EqualTo(1), "The 'BadRequestObjectResult' should exactly one error");

@@ -49,21 +49,24 @@ namespace Battleship.Business.Tests
             var createdGameMock = new Mock<IGame>();
             IGame createdGame = createdGameMock.Object;
 
-            _gameFactoryMock.Setup(factory => factory.CreateNewSinglePlayerGame(settings, user)).Returns(createdGame);
-            _gameRepositoryMock.Setup(repo => repo.Add(createdGame));
+            _gameFactoryMock.Setup(factory => factory.CreateNewSinglePlayerGame(It.IsAny<GameSettings>(), It.IsAny<User>())).Returns(createdGame);
 
             var createdGameInfoMock = new Mock<IGameInfo>();
             IGameInfo createdGameInfo = createdGameInfoMock.Object;
-            _gameInfoFactoryMock.Setup(factory => factory.CreateFromGame(createdGame, user.Id)).Returns(createdGameInfo);
+            _gameInfoFactoryMock.Setup(factory => factory.CreateFromGame(It.IsAny<IGame>(), It.IsAny<Guid>())).Returns(createdGameInfo);
 
             //Act
             IGameInfo gameInfo = _service.CreateGameForUser(settings, user);
 
             //Assert
+            _gameFactoryMock.Verify(factory => factory.CreateNewSinglePlayerGame(settings, user), Times.Once,
+                "The 'CreateNewSinglePlayerGame' method of the IGameFactory is not called correctly.");
+            _gameRepositoryMock.Verify(repo => repo.Add(createdGame), Times.Once,
+                "The 'Add' method of the IGameRepository is not called correctly. It should add the game created by the IGameFactory.");
+            _gameInfoFactoryMock.Verify(factory => factory.CreateFromGame(createdGame, user.Id), Times.Once,
+                "The 'CreateFromGame' method of the IGameInfoFactory is not called correctly. It should use the game created by the IGameFactory and the id of the user as playerId.");
+
             Assert.That(gameInfo, Is.SameAs(createdGameInfo), "The IGame returned should be an instance created by the IGameInfoFactory.");
-            _gameFactoryMock.Verify();
-            _gameRepositoryMock.Verify();
-            _gameInfoFactoryMock.Verify();
         }
 
         [MonitoredTest("GetGameInfoForPlayer - Retrieves the game from the repository and uses the GameInfoFactory to convert it")]
@@ -75,19 +78,23 @@ namespace Battleship.Business.Tests
             var existingGameMock = new Mock<IGame>();
             IGame existingGame = existingGameMock.Object;
 
-            _gameRepositoryMock.Setup(repo => repo.GetById(gameId)).Returns(existingGame);
+            _gameRepositoryMock.Setup(repo => repo.GetById(It.IsAny<Guid>())).Returns(existingGame);
 
             var createdGameInfoMock = new Mock<IGameInfo>();
             IGameInfo createdGameInfo = createdGameInfoMock.Object;
-            _gameInfoFactoryMock.Setup(factory => factory.CreateFromGame(existingGame, userId)).Returns(createdGameInfo);
+            _gameInfoFactoryMock.Setup(factory => factory.CreateFromGame(It.IsAny<IGame>(), It.IsAny<Guid>())).Returns(createdGameInfo);
 
             //Act
             IGameInfo gameInfo = _service.GetGameInfoForPlayer(gameId, userId);
 
             //Assert
+            _gameRepositoryMock.Verify(repo => repo.GetById(gameId), Times.Once,
+                "The 'GetById' method of the IGameRepository is not called correctly.");
+            _gameInfoFactoryMock.Verify(factory => factory.CreateFromGame(existingGame, userId), Times.Once,
+                "The 'CreateFromGame' method of the IGameInfoFactory is not called correctly. " +
+                "The game retrieved with the IGameRepository and the id of the user should be provided.");
+
             Assert.That(gameInfo, Is.SameAs(createdGameInfo), "The IGame returned should be an instance created by the IGameInfoFactory.");
-            _gameRepositoryMock.Verify();
-            _gameInfoFactoryMock.Verify();
         }
 
         [MonitoredTest("GetGameInfoForPlayer - Should not catch DataNotFoundExceptions")]
@@ -112,7 +119,7 @@ namespace Battleship.Business.Tests
             ShipKind shipKind = ShipKind.All.NextRandomElement();
             GridCoordinate[] segmentCoordinates =
             {
-                new GridCoordinateBuilder().Build(), 
+                new GridCoordinateBuilder().Build(),
                 new GridCoordinateBuilder().Build()
             };
 
@@ -122,7 +129,8 @@ namespace Battleship.Business.Tests
             Result expectedResult = Result.CreateSuccessResult();
 
             var fleetMock = new Mock<IFleet>();
-            fleetMock.Setup(f => f.TryMoveShipTo(shipKind, segmentCoordinates, grid)).Returns(expectedResult);
+            fleetMock.Setup(f => f.TryMoveShipTo(It.IsAny<ShipKind>(), It.IsAny<GridCoordinate[]>(), It.IsAny<IGrid>()))
+                .Returns(expectedResult);
             IFleet fleet = fleetMock.Object;
 
             var playerMock = new Mock<IPlayer>();
@@ -131,9 +139,9 @@ namespace Battleship.Business.Tests
             playerMock.SetupGet(p => p.Grid).Returns(grid);
 
             var existingGameMock = new Mock<IGame>();
-            existingGameMock.Setup(g => g.GetPlayerById(userId)).Returns(player);
+            existingGameMock.Setup(g => g.GetPlayerById(It.IsAny<Guid>())).Returns(player);
             IGame existingGame = existingGameMock.Object;
-            _gameRepositoryMock.Setup(repo => repo.GetById(gameId)).Returns(existingGame);
+            _gameRepositoryMock.Setup(repo => repo.GetById(It.IsAny<Guid>())).Returns(existingGame);
 
             //Act
             var result = _service.PositionShipOnGrid(gameId, userId, shipKind, segmentCoordinates);
@@ -141,9 +149,24 @@ namespace Battleship.Business.Tests
             //Assert
             Assert.That(result, Is.SameAs(expectedResult),
                 "The Result returned should be an instance created by the TryMoveShipTo method of the Fleet of the Player.");
-            _gameRepositoryMock.Verify();
-            existingGameMock.Verify();
-            fleetMock.Verify();
+
+            _gameRepositoryMock.Verify(repo => repo.GetById(gameId), Times.Once,
+                "The 'GetById' method of the IGameRepository is not called correctly.");
+
+            existingGameMock.Verify(g => g.GetPlayerById(userId), Times.Once,
+                "The 'GetPlayerById' method of the game returned by the IGameRepository is not called correctly. " +
+                "The userId should be provided.");
+
+            playerMock.VerifyGet(p => p.Fleet, Times.AtLeastOnce,
+                "The Fleet property of the player returned by the 'GetPlayerById' method of the game, should be used. " +
+                "On this Fleet property the 'TryMoveShipTo' method can be called.");
+
+            playerMock.VerifyGet(p => p.Grid, Times.AtLeastOnce,
+                "The Grid property of the player returned by the 'GetPlayerById' method of the game, " +
+                "should be used to pass as an argument to the 'TryMoveShipTo' of the Fleet of the player.");
+
+            fleetMock.Verify(f => f.TryMoveShipTo(shipKind, segmentCoordinates, grid), Times.Once,
+                "The 'TryMoveShipTo' method of the Fleet of the player returned by the 'GetPlayerById' method of the game, is not called correctly.");
         }
 
         [MonitoredTest("PositionShipOnGrid - Should not catch ApplicationExceptions")]
@@ -163,7 +186,7 @@ namespace Battleship.Business.Tests
             IGrid grid = gridMock.Object;
 
             var fleetMock = new Mock<IFleet>();
-            fleetMock.Setup(f => f.TryMoveShipTo(shipKind, segmentCoordinates, grid)).Throws<ApplicationException>();
+            fleetMock.Setup(f => f.TryMoveShipTo(It.IsAny<ShipKind>(), It.IsAny<GridCoordinate[]>(), It.IsAny<IGrid>())).Throws<ApplicationException>();
             IFleet fleet = fleetMock.Object;
 
             var playerMock = new Mock<IPlayer>();
@@ -193,7 +216,7 @@ namespace Battleship.Business.Tests
                 new GridCoordinateBuilder().Build()
             };
 
-            _gameRepositoryMock.Setup(repo => repo.GetById(gameId)).Throws<DataNotFoundException>();
+            _gameRepositoryMock.Setup(repo => repo.GetById(It.IsAny<Guid>())).Throws<DataNotFoundException>();
 
             //Act
             Assert.That(() => _service.PositionShipOnGrid(gameId, userId, shipKind, segmentCoordinates), Throws.InstanceOf<DataNotFoundException>());
@@ -206,14 +229,14 @@ namespace Battleship.Business.Tests
             //Arrange
             Guid userId = Guid.NewGuid();
             Guid gameId = Guid.NewGuid();
-            GridCoordinate targetCoordinate = new GridCoordinate(1,1);
+            GridCoordinate targetCoordinate = new GridCoordinate(1, 1);
 
             var existingGameMock = new Mock<IGame>();
             IGame existingGame = existingGameMock.Object;
-            _gameRepositoryMock.Setup(repo => repo.GetById(gameId)).Returns(existingGame);
+            _gameRepositoryMock.Setup(repo => repo.GetById(It.IsAny<Guid>())).Returns(existingGame);
 
             ShotResult expectedShotResult = RuntimeHelpers.GetUninitializedObject(typeof(ShotResult)) as ShotResult;
-            existingGameMock.Setup(game => game.ShootAtOpponent(userId, targetCoordinate)).Returns(expectedShotResult);
+            existingGameMock.Setup(game => game.ShootAtOpponent(It.IsAny<Guid>(), It.IsAny<GridCoordinate>())).Returns(expectedShotResult);
 
             //Act
             var returnedShotResult = _service.ShootAtOpponent(gameId, userId, targetCoordinate);
@@ -221,8 +244,13 @@ namespace Battleship.Business.Tests
             //Assert
             Assert.That(returnedShotResult, Is.SameAs(expectedShotResult),
                 "The ShotResult returned should be an instance created by the ShootAtOpponent method of the Game.");
-            _gameRepositoryMock.Verify();
-            existingGameMock.Verify();
+
+            _gameRepositoryMock.Verify(repo => repo.GetById(gameId), Times.Once,
+                "The 'GetById' method of the IGameRepository is not called correctly.");
+
+            existingGameMock.Verify(game => game.ShootAtOpponent(userId, targetCoordinate), Times.Once,
+                "The 'ShootAtOpponent' method of the game returned by the IGameRepository is not called correctly. " +
+                "The id of the shooter and the target coordinate should be provided.");
         }
 
         [MonitoredTest("ShootAtOpponent - Should not catch ApplicationExceptions")]
@@ -235,9 +263,9 @@ namespace Battleship.Business.Tests
 
             var existingGameMock = new Mock<IGame>();
             IGame existingGame = existingGameMock.Object;
-            _gameRepositoryMock.Setup(repo => repo.GetById(gameId)).Returns(existingGame);
+            _gameRepositoryMock.Setup(repo => repo.GetById(It.IsAny<Guid>())).Returns(existingGame);
 
-            existingGameMock.Setup(game => game.ShootAtOpponent(userId, targetCoordinate)).Throws<ApplicationException>();
+            existingGameMock.Setup(game => game.ShootAtOpponent(It.IsAny<Guid>(), It.IsAny<GridCoordinate>())).Throws<ApplicationException>();
 
             //Act + Assert
             Assert.That(() => _service.ShootAtOpponent(gameId, userId, targetCoordinate), Throws.InstanceOf<ApplicationException>());
@@ -251,7 +279,7 @@ namespace Battleship.Business.Tests
             Guid gameId = Guid.NewGuid();
             GridCoordinate targetCoordinate = new GridCoordinate(1, 1);
 
-            _gameRepositoryMock.Setup(repo => repo.GetById(gameId)).Throws<DataNotFoundException>();
+            _gameRepositoryMock.Setup(repo => repo.GetById(It.IsAny<Guid>())).Throws<DataNotFoundException>();
 
             //Act + Assert
             Assert.That(() => _service.ShootAtOpponent(gameId, userId, targetCoordinate), Throws.InstanceOf<DataNotFoundException>());

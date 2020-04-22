@@ -40,7 +40,7 @@ namespace Battleship.Domain.Tests
             Assert.That(isRandom, Is.True);
         }
 
-        [MonitoredTest("IsOutOfBounds - Should return false when coordinate is not within grid")]
+        [MonitoredTest("IsOutOfBounds - Should return true when coordinate is not within grid")]
         [TestCase(-1, 0, 10, true)]
         [TestCase(0, -1, 10, true)]
         [TestCase(11, 0, 10, true)]
@@ -48,7 +48,7 @@ namespace Battleship.Domain.Tests
         [TestCase(5, 5, 10, false)]
         [TestCase(0, 0, 1, false)]
         [TestCase(1, 1, 1, true)]
-        public void IsOutOfBounds_ShouldReturnFalseWhenCoordinateIsNotWithinGrid(int row, int column, int gridSize, bool expected)
+        public void IsOutOfBounds_ShouldReturnTrueWhenCoordinateIsNotWithinGrid(int row, int column, int gridSize, bool expected)
         {
             GridCoordinate coordinate = new GridCoordinate(row, column);
             Assert.That(coordinate.IsOutOfBounds(gridSize), Is.EqualTo(expected),
