@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Battleship.Domain.GameDomain;
 using Battleship.Domain.GameDomain.Contracts;
 using Battleship.Domain.GridDomain;
@@ -13,7 +14,7 @@ using NUnit.Framework;
 
 namespace Battleship.Domain.Tests
 {
-    [ProjectComponentTestFixture("1TINProject", "Battleship", "Game", @"Battleship.Domain\GameDomain\Game.cs")]
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "Game", @"Battleship.Domain\GameDomain\Game.cs;Battleship.Domain\GameDomain\GameFactory.cs")]
     public class GameTests : TestBase
     {
         private Game _game;
@@ -27,12 +28,19 @@ namespace Battleship.Domain.Tests
         [SetUp]
         public void Setup()
         {
-            _settings = new GameSettingsBuilder().Build();
-            _player1Builder = new PlayerBuilder().WithFleetPositionedOnGrid(true);
-            _player1 = _player1Builder.Build();
-            _player2Builder = new PlayerBuilder().WithFleetPositionedOnGrid(true);
-            _player2 = _player2Builder.Build();
-            _game = new Game(_settings, _player1, _player2);
+            try
+            {
+                _settings = new GameSettingsBuilder().Build();
+                _player1Builder = new PlayerBuilder().WithFleetPositionedOnGrid(true);
+                _player1 = _player1Builder.Build();
+                _player2Builder = new PlayerBuilder().WithFleetPositionedOnGrid(true);
+                _player2 = _player2Builder.Build();
+                _game = new Game(_settings, _player1, _player2);
+            }
+            catch (Exception)
+            {
+                Debug.WriteLine("Setup of GameTests failed");
+            }
         }
 
         [MonitoredTest("GameFactory - CreateNewSinglePlayerGame - Creates a game with a human and computer player with bombs loaded for the human")]
@@ -66,6 +74,7 @@ namespace Battleship.Domain.Tests
         [MonitoredTest("GetPlayerById - Returns the player with the matching id")]
         public void GetPlayerById_ReturnsThePlayerWithTheMatchingId()
         {
+            AssertThatGameIsConstructed();
             Assert.That(_game.GetPlayerById(_player1.Id), Is.SameAs(_player1));
             Assert.That(_game.GetPlayerById(_player2.Id), Is.SameAs(_player2));
         }
@@ -73,6 +82,7 @@ namespace Battleship.Domain.Tests
         [MonitoredTest("GetOpponent - Returns the other player")]
         public void GetOpponent_ReturnsTheOtherPlayer()
         {
+            AssertThatGameIsConstructed();
             Assert.That(_game.GetOpponent(_player1), Is.SameAs(_player2));
             Assert.That(_game.GetOpponent(_player2), Is.SameAs(_player1));
         }
@@ -80,6 +90,8 @@ namespace Battleship.Domain.Tests
         [MonitoredTest("Start - Should mark the game as started and load the bombs for player 1")]
         public void Start_ShouldMarkTheGameAsStartedAndLoadTheBombsForPlayer1()
         {
+            AssertThatGameIsConstructed();
+
             //Act
             var result = _game.Start();
 
@@ -93,6 +105,8 @@ namespace Battleship.Domain.Tests
         [MonitoredTest("Start - Should fail when the fleet of player 1 is not positioned")]
         public void Start_ShouldFailWhenTheFleetOfPlayer1IsNotPositioned()
         {
+            AssertThatGameIsConstructed();
+
             //Arrange
             _player1Builder.WithFleetPositionedOnGrid(false);
 
@@ -107,6 +121,8 @@ namespace Battleship.Domain.Tests
         [MonitoredTest("Start - Should fail when the fleet of player 2 is not positioned")]
         public void Start_ShouldFailWhenTheFleetOfPlayer2IsNotPositioned()
         {
+            AssertThatGameIsConstructed();
+
             //Arrange
             _player2Builder.WithFleetPositionedOnGrid(false);
 
@@ -121,6 +137,8 @@ namespace Battleship.Domain.Tests
         [MonitoredTest("ShootAtOpponent - Should use the ShootAt method of the player")]
         public void ShootAtOpponent_ShouldUseTheShootAtMethodOfThePlayer()
         {
+            AssertThatGameIsConstructed();
+
             //Arrange
             GridCoordinate targetCoordinate = new GridCoordinateBuilder().Build();
             _player1Builder.WithBombsLoaded(true);
@@ -143,6 +161,8 @@ namespace Battleship.Domain.Tests
         [MonitoredTest("ShootAtOpponent - Should return a misfire when the game is not started yet")]
         public void ShootAtOpponent_ShouldReturnAMisfireWhenTheGameIsNotStartedYet()
         {
+            AssertThatGameIsConstructed();
+
             //Arrange
             GridCoordinate targetCoordinate = new GridCoordinateBuilder().Build();
             _player1Builder.WithBombsLoaded(true);
@@ -160,6 +180,8 @@ namespace Battleship.Domain.Tests
         [MonitoredTest("ShootAtOpponent - Should return a misfire when no bombs are loaded")]
         public void ShootAtOpponent_ShouldReturnAMisfireWhenNoBombsAreLoaded()
         {
+            AssertThatGameIsConstructed();
+
             //Arrange
             GridCoordinate targetCoordinate = new GridCoordinateBuilder().Build();
             _player2Builder.WithBombsLoaded(false);
@@ -179,6 +201,8 @@ namespace Battleship.Domain.Tests
         [MonitoredTest("ShootAtOpponent - Should let the Computer shoot when all bombs are shot")]
         public void ShootAtOpponent_ShouldLetTheComputerShootWhenAllBombsAreShot()
         {
+            AssertThatGameIsConstructed();
+
             //Arrange
             var shootingStrategyMock = new Mock<IShootingStrategy>();
             IPlayer computerPlayer = new ComputerPlayer(_settings, shootingStrategyMock.Object);
@@ -215,6 +239,11 @@ namespace Battleship.Domain.Tests
                 "The ReloadBombs method of the human player should be called after the computer is done with shooting.");
 
             Assert.That(result, Is.SameAs(expectedShotResult), "The ShotResult returned by the ShootAt method (of the human player) should be returned.");
+        }
+
+        private void AssertThatGameIsConstructed()
+        {
+            Assert.That(_game, Is.Not.Null, "Could not create an instance of Game");
         }
     }
 }
