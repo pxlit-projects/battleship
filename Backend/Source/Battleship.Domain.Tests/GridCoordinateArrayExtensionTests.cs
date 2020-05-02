@@ -125,10 +125,12 @@ namespace Battleship.Domain.Tests
             //Arrange
             GridCoordinate[] touching1 = {new GridCoordinate(0, 0), new GridCoordinate(1, 1), new GridCoordinate(2, 2)};
             GridCoordinate[] touching2 = { new GridCoordinate(2, 5), new GridCoordinate(3, 5), new GridCoordinate(3, 6) };
+            GridCoordinate[] touching3 = { new GridCoordinate(5, 4), new GridCoordinate(5, 3), new GridCoordinate(4, 3) };
 
             //Act
             Assert.That(touching1.AreLinked(), Is.True, $"Should be true for {touching1.Print()}");
             Assert.That(touching2.AreLinked(), Is.True, $"Should be true for {touching2.Print()}");
+            Assert.That(touching3.AreLinked(), Is.True, $"Should be true for {touching3.Print()}");
         }
 
         [MonitoredTest("AreLinked - Should return false when some coordinates are not touching each other")]

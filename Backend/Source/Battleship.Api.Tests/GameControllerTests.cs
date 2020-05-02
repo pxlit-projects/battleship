@@ -174,7 +174,7 @@ namespace Battleship.Api.Tests
         }
 
         [MonitoredTest("GetGameInfo - Should return not found when the game does not exist")]
-        public void GetGameInfo_ShouldReturnNotFountWhenGameDoesNotExist()
+        public void GetGameInfo_ShouldReturnNotFoundWhenGameDoesNotExist()
         {
             //Arrange
             _gameServiceMock.Setup(service => service.GetGameInfoForPlayer(It.IsAny<Guid>(), It.IsAny<Guid>())).Throws<DataNotFoundException>();
