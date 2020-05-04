@@ -313,9 +313,6 @@ namespace Battleship.Domain.Tests
             Assert.That(result.IsFailure, Is.True);
             collidingShipMock.Verify(s => s.CanBeFoundAtCoordinate(It.IsIn(targetCoordinates)), Times.AtLeastOnce,
                 "Use the CanBeFoundAtCoordinate method of Ship to check if a ship collides with one of the segment coordinates.");
-            shipToMoveMock.Verify(s => s.CanBeFoundAtCoordinate(It.IsAny<GridCoordinate>()), Times.Never,
-                "Do not use the CanBeFoundAtCoordinate method for the ship that is being moved. A ship cannot collide with itself.");
-
         }
 
         [MonitoredTest("RandomlyPositionOnGrid - Should create random segment coordinates for each ship")]
