@@ -34,9 +34,12 @@ namespace Battleship.Business.Tests
             Assert.That(gridInfo, Is.Not.Null, "No instance of a class that implements IGridInfo is returned.");
             Assert.That(gridInfo.Size, Is.EqualTo(grid.Size), "The Size should be the same as the Size of the grid.");
 
+            Assert.That(gridInfo.Squares, Is.Not.Null, "The Squares property of the GridInfo does not contain an instance of a jagged array.");
             Assert.That(gridInfo.Squares.Length, Is.EqualTo(grid.Size), "The Squares should have a length equal to the size of the grid.");
             foreach (var squareInfoRow in gridInfo.Squares)
             {
+                Assert.That(squareInfoRow, Is.Not.Null,
+                    "The value for each element in the array of the 1ste dimension (row) should in turn be an instance of an array (columns).");
                 Assert.That(squareInfoRow.Length, Is.EqualTo(grid.Size),
                     "Each row of squares should have a length equal to the size of the grid.");
             }
