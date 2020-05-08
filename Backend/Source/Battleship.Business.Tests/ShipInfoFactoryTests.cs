@@ -13,7 +13,7 @@ using NUnit.Framework;
 
 namespace Battleship.Business.Tests
 {
-    [ProjectComponentTestFixture("1TINProject", "Battleship", "GridInfoFactory", @"Battleship.Business\Models\ShipInfoFactory.cs")]
+    [ProjectComponentTestFixture("1TINProject", "Battleship", "ShipInfoFactory", @"Battleship.Business\Models\ShipInfoFactory.cs;Battleship.Business\Models\ShipInfo.cs")]
     public class ShipInfoFactoryTests : TestBase
     {
         private ShipInfoFactory _factory;
@@ -68,7 +68,7 @@ namespace Battleship.Business.Tests
         public void ShipInfo_Constructor_ShouldCopyShipProperties()
         {
             //Arrange
-            IShip ship = ArrangeShip(ShipKind.All.NextRandomElement(), RandomGenerator.NextBool());
+            IShip ship = ArrangeShip(ShipKind.All.NextRandomElement(), RandomGenerator.NextBool(), isPositioned: true);
 
             //Act
             IShipInfo shipInfo = new ShipInfo(ship);
@@ -76,6 +76,7 @@ namespace Battleship.Business.Tests
             //Assert
             Assert.That(shipInfo.Kind, Is.EqualTo(ship.Kind), "The Kind is not set correctly.");
             Assert.That(shipInfo.HasSunk, Is.EqualTo(ship.HasSunk), "HasSunk is not set correctly.");
+            Assert.That(shipInfo.Coordinates, Is.Not.Null.And.Not.Empty, "The Coordinates are not set correctly.");
             Assert.That(shipInfo.Coordinates.All(infoCoordinate =>
                     ship.Squares.Any(s => s.Coordinate == infoCoordinate)), Is.True,
                 "The Coordinates are not set correctly.");
