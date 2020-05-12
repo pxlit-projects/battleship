@@ -361,7 +361,7 @@ namespace Battleship.Domain.Tests
 
             var body = CodeCleaner.StripComments(method.Body.ToString());
 
-            Assert.That(body, Contains.Substring(".Kind.GenerateRandomSegmentCoordinates(grid.Size").IgnoreCase,
+            Assert.That(body, Contains.Substring(".GenerateRandomSegmentCoordinates(grid.Size").IgnoreCase,
                 "You must use the GenerateRandomSegmentCoordinates of the ShipKind class to generate random segment coordinates for each ship");
 
             Assert.That(body, Contains.Substring("TryMoveShipTo(").IgnoreCase,

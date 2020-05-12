@@ -36,6 +36,7 @@ namespace Battleship.Domain.Tests
                 }
 
                 previousCoordinate = newCoordinate;
+                numberOfTries++;
             }
             Assert.That(isRandom, Is.True);
         }
