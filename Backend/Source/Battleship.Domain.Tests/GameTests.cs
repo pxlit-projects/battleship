@@ -3,12 +3,14 @@ using System.Diagnostics;
 using Battleship.Domain.GameDomain;
 using Battleship.Domain.GameDomain.Contracts;
 using Battleship.Domain.GridDomain;
+using Battleship.Domain.GridDomain.Contracts;
 using Battleship.Domain.PlayerDomain;
 using Battleship.Domain.PlayerDomain.Contracts;
 using Battleship.TestTools;
 using Battleship.TestTools.Builders;
 using Guts.Client.Core;
 using Guts.Client.Shared;
+using Guts.Client.Shared.TestTools;
 using Moq;
 using NUnit.Framework;
 
@@ -65,10 +67,20 @@ namespace Battleship.Domain.Tests
             Assert.That(game.Player1.HasBombsLoaded, Is.False, "No player should have bombs loaded after a game is created. " +
                                                                "Bombs are loaded when a game is started.");
 
-            Assert.That(game.Player2, Is.TypeOf<ComputerPlayer>(), "Player 2 must be a ComputerPlayer.");
-            Assert.That(game.Player2.Id, Is.Not.EqualTo(Guid.Empty), "The Id of Player2 must be a new Guid (Guid.NewGuid();).");
-            Assert.That(game.Player2.HasBombsLoaded, Is.False, "No player should have bombs loaded after a game is created. " +
-                                                               "Bombs are loaded when a game is started.");
+            ComputerPlayer computerPlayer = game.Player2 as ComputerPlayer;
+            Assert.That(computerPlayer, Is.Not.Null, "Player 2 must be a ComputerPlayer.");
+            Assert.That(computerPlayer.Id, Is.Not.EqualTo(Guid.Empty), "The Id of Player2 must be a new Guid (Guid.NewGuid();).");
+            Assert.That(computerPlayer.HasBombsLoaded, Is.False, "No player should have bombs loaded after a game is created. " +
+                                                                 "Bombs are loaded when a game is started.");
+
+            IShootingStrategy shootingStrategy = computerPlayer.GetPrivateFieldValue<IShootingStrategy>();
+            Assert.That(shootingStrategy, Is.Not.Null, "Cannot find a private field of type IShootingStrategy in the ComputerPlayer class.");
+
+            IGrid opponentGrid = shootingStrategy.GetPrivateFieldValue<IGrid>();
+            Assert.That(opponentGrid, Is.Not.Null, "Cannot find a private field of type IGrid in the shooting strategy class.");
+            Assert.That(opponentGrid, Is.SameAs(game.Player1.Grid),
+                "The grid used in the shooting strategy of the computer player should be the same instance as the grid of player1 " +
+                "(because player1 is the opponent of the computer player.");
         }
 
         [MonitoredTest("GetPlayerById - Returns the player with the matching id")]

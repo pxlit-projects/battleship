@@ -47,6 +47,9 @@ namespace Battleship.Domain.Tests
             //Arrange
             int gridSize = RandomGenerator.Next(10, 16);
             Grid grid = new Grid(gridSize);
+
+            AssertSquaresAreInitialized(grid, gridSize);
+
             GridCoordinate coordinate = new GridCoordinateBuilder(gridSize).Build();
 
             //Act
@@ -55,6 +58,8 @@ namespace Battleship.Domain.Tests
             //Assert
             Assert.That(square, Is.Not.Null);
             Assert.That(square.Coordinate, Is.EqualTo(coordinate));
+            Assert.That(grid.Squares, Has.One.SameAs(square),
+                "The IGridSquare returned is not one of the squares of the grid. Did you perhaps returned a new instance of GridSquare?");
         }
 
         [MonitoredTest("Shoot - Should hit the matching square with a bomb and return it")]
@@ -63,6 +68,9 @@ namespace Battleship.Domain.Tests
             //Arrange
             int gridSize = RandomGenerator.Next(10, 16);
             Grid grid = new Grid(gridSize);
+
+            AssertSquaresAreInitialized(grid, gridSize);
+
             GridCoordinate coordinate = new GridCoordinateBuilder(gridSize).Build();
 
             //Act
@@ -74,6 +82,8 @@ namespace Battleship.Domain.Tests
             Assert.That(square.Status, Is.Not.EqualTo(GridSquareStatus.Untouched),
                 "After hitting a square, its status should not be Untouched. " +
                 "Use the HitByBomb method of the square to achieve this.");
+            Assert.That(grid.Squares, Has.One.SameAs(square),
+                "The IGridSquare returned is not one of the squares of the grid. Did you perhaps returned a new instance of GridSquare?");
         }
 
         [MonitoredTest("Shoot - Should throw ApplicationException when the shot is not within the grid")]
@@ -86,6 +96,15 @@ namespace Battleship.Domain.Tests
 
             //Act + Assert
             Assert.That(() => grid.Shoot(outOfBoundCoordinate), Throws.InstanceOf<ApplicationException>());
+        }
+
+        private void AssertSquaresAreInitialized(Grid grid, int gridSize)
+        {
+            if (grid.Squares == null || grid.Squares.Length != gridSize * gridSize)
+            {
+                Assert.Fail(
+                    $"Grid squares are not properly initialized. Make sure the test '{nameof(Constructor_ShouldInitializeTheGridSquares)}' is green first.");
+            }
         }
     }
 }
