@@ -222,6 +222,53 @@ namespace Battleship.Business.Tests
             Assert.That(() => _service.PositionShipOnGrid(gameId, userId, shipKind, segmentCoordinates), Throws.InstanceOf<DataNotFoundException>());
         }
 
+        [MonitoredTest("StartGame - Retrieves the game from the repository and starts it")]
+        public void StartGame_RetrievesTheGameFromTheRepositoryAndStartsIt()
+        {
+            //Arrange
+            IPlayer player = new PlayerBuilder().Build();
+            IPlayer opponent = new PlayerBuilder().Build();
+            Result expectedResult = Result.CreateSuccessResult();
+            var existingGameMock = new GameBuilder().WithPlayers(player, opponent).BuildMock();
+            existingGameMock.Setup(g => g.Start()).Returns(expectedResult);
+            IGame existingGame = existingGameMock.Object;
+            _gameRepositoryMock.Setup(repo => repo.GetById(It.IsAny<Guid>())).Returns(existingGame);
+
+            //Act
+            Result result = _service.StartGame(existingGame.Id, player.Id);
+
+            //Assert
+            _gameRepositoryMock.Verify(repo => repo.GetById(existingGame.Id), Times.Once,
+                "The 'GetById' method of the IGameRepository is not called correctly.");
+
+            existingGameMock.Verify(g => g.Start(), Times.Once, "The Start method of the retrieved game should be called.");
+            Assert.That(result, Is.SameAs(expectedResult),
+                "The result of the Start method of the retrieved game should be returned.");
+        }
+
+        [MonitoredTest("StartGame - Should fail when the playerId does not match any of the players")]
+        public void StartGame_ShouldFailWhenThePlayerIdDoesNotMatchAnyOfThePlayers()
+        {
+            //Arrange
+            IPlayer player = new PlayerBuilder().Build();
+            IPlayer opponent = new PlayerBuilder().Build();
+            var existingGameMock = new GameBuilder().WithPlayers(player, opponent).BuildMock();
+            IGame existingGame = existingGameMock.Object;
+            _gameRepositoryMock.Setup(repo => repo.GetById(It.IsAny<Guid>())).Returns(existingGame);
+
+            Guid otherPlayerId = Guid.NewGuid();
+
+            //Act
+            Result result = _service.StartGame(existingGame.Id, otherPlayerId);
+
+            //Assert
+            _gameRepositoryMock.Verify(repo => repo.GetById(existingGame.Id), Times.Once,
+                "The 'GetById' method of the IGameRepository is not called correctly.");
+            Assert.That(result.IsFailure, Is.True, "A failure result should be returned.");
+
+            existingGameMock.Verify(g => g.Start(), Times.Never,
+                "The Start method of the retrieved game should not be called when the playerId does not match with one of the 2 players of the game.");
+        }
 
         [MonitoredTest("ShootAtOpponent - Retrieves the game from the repository and uses it to shoot")]
         public void ShootAtOpponent_RetrievesTheGameFromTheRepositoryAndUsesItToShoot()
