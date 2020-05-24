@@ -76,48 +76,18 @@ namespace Battleship.Domain.Tests
         }
 
         [MonitoredTest("EXTRA - DetermineTargetCoordinate - Should pick random coordinate that can host an opponent ship")]
-        [TestCase("1 0 1 1 1 0 1 0 1 1\n" +
-                  "0 1 1 0 1 1 0 1 0 1\n" +
-                  "0 0 0 1 0 1 1 0 1 0\n" +
-                  "1 1 1 0 1 0 1 1 0 1\n" +
-                  "1 1 0 1 0 1 0 1 1 0\n" +
-                  "1 0 1 1 1 1 1 0 1 1\n" +
-                  "0 1 0 1 0 1 0 1 1 0\n" +
-                  "1 0 1 1 1 1 1 1 0 1\n" +
-                  "1 1 0 1 0 1 0 1 1 0\n" +
-                  "0 1 1 0 1 0 1 1 0 1", 2, "(1,0) (2,0) (2,1) (2,2)")]
-        [TestCase("0 0 1 2 2 1 1 0 0 1\n" +
-                  "0 1 1 0 0 1 0 1 0 1\n" +
-                  "1 0 0 1 0 1 1 0 1 0\n" +
-                  "0 0 1 0 1 0 1 1 0 1\n" +
-                  "0 1 0 1 0 1 0 1 1 0\n" +
-                  "1 0 1 1 0 1 1 0 0 1\n" +
-                  "0 1 0 1 0 1 0 1 1 0\n" +
-                  "0 0 1 1 1 1 1 1 1 1\n" +
-                  "1 0 0 1 0 1 1 0 0 0\n" +
-                  "0 1 1 0 1 0 1 1 0 1", 3, "(4,4) (5,4) (6,4) (8,7) (8,8) (8,9)")]
-        [TestCase("1 0 0 0 2 0 1 0 1 1\n" +
-                  "0 1 1 0 2 1 0 1 0 1\n" +
-                  "0 0 0 1 0 1 1 0 1 0\n" +
-                  "1 1 1 0 1 2 2 2 0 1\n" +
-                  "1 1 0 1 0 1 0 1 1 0\n" +
-                  "1 0 1 0 1 1 2 0 1 0\n" +
-                  "0 0 0 0 1 0 2 1 1 0\n" +
-                  "1 0 1 1 0 0 2 1 0 0\n" +
-                  "1 1 0 1 0 1 0 1 1 0\n" +
-                  "0 1 1 0 0 0 1 1 0 1", 4, "(6,0) (6,1) (6,2) (6,3) (4,9) (5,9) (6,9) (7,9) (8,9)")]
+        [TestCaseSource(nameof(EXTRADetermineTargetCoordinateRandomSunkenShipTestCases))]
         public void DetermineTargetCoordinate_ShouldPickRandomCoordinatesThatCanHostAnOpponentShip(
-            string gridConfiguration, int smallestOpponentShipSize, string allowedCoordinates)
+            string gridConfiguration, int smallestOpponentShipSize, string allowedCoordinates, Dictionary<ShipKind, GridCoordinate[]> sunkenShips)
         {
             for (int numberOfChecks = 0; numberOfChecks < 10; numberOfChecks++)
             {
                 //Arrange
                 ParseGridConfiguration(gridConfiguration);
 
-                IList<ShipKind> sunkenShipKinds = ShipKind.All.Where(kind => kind.Size < smallestOpponentShipSize).ToList();
-                foreach (var sunkenShipKind in sunkenShipKinds)
+                foreach (var ship in sunkenShips)
                 {
-                    RegisterSunkenShip(sunkenShipKind);
+                    RegisterSunkenShip(ship.Key, ship.Value);
                 }
 
                 IList<GridCoordinate> expectedCoordinates = ParseExpectedCoordinates(allowedCoordinates);
@@ -307,9 +277,96 @@ namespace Battleship.Domain.Tests
             return expectedCoordinates;
         }
 
-        private void RegisterSunkenShip(ShipKind sunkenShipKind)
+        private static IEnumerable<TestCaseData> EXTRADetermineTargetCoordinateRandomSunkenShipTestCases
         {
-            var shipBuilder = new ShipBuilder(sunkenShipKind).WithSquares(GridSquareStatus.Hit);
+            get
+            {
+                yield return new TestCaseData(
+                    "1 0 1 1 1 0 1 0 1 1\n" +
+                    "0 1 1 0 1 1 0 1 0 1\n" +
+                    "0 0 0 1 0 1 1 0 1 0\n" +
+                    "1 1 1 0 1 0 1 1 0 1\n" +
+                    "1 1 0 1 0 1 0 1 1 0\n" +
+                    "1 0 1 1 1 1 1 0 1 1\n" +
+                    "0 1 0 1 0 1 0 1 1 0\n" +
+                    "1 0 1 1 1 1 1 1 0 1\n" +
+                    "1 1 0 1 0 1 0 1 1 0\n" +
+                    "0 1 1 0 1 0 1 1 0 1",
+                    2, "(1,0) (2,0) (2,1) (2,2)",
+                    new Dictionary<ShipKind, GridCoordinate[]>());
+                yield return new TestCaseData(
+                    "0 0 1 2 2 1 1 0 0 1\n" +
+                    "0 1 1 0 0 1 0 1 0 1\n" +
+                    "1 0 0 1 0 1 1 0 1 0\n" +
+                    "0 0 1 0 1 0 1 1 0 1\n" +
+                    "0 1 0 1 0 1 0 1 1 0\n" +
+                    "1 0 1 1 0 1 1 0 0 1\n" +
+                    "0 1 0 1 0 1 0 1 1 0\n" +
+                    "0 0 1 1 1 1 1 1 1 1\n" +
+                    "1 0 0 1 0 1 1 0 0 0\n" +
+                    "0 1 1 0 1 0 1 1 0 1",
+                    3, "(4,4) (5,4) (6,4) (8,7) (8,8) (8,9)",
+                    new Dictionary<ShipKind, GridCoordinate[]>
+                    {
+                        {
+                            ShipKind.PatrolBoat,
+                            new GridCoordinate[] {
+                                new GridCoordinate(0, 3),
+                                new GridCoordinate(0, 4)
+                            }
+                        }
+                    });
+                yield return new TestCaseData(
+                    "1 0 0 0 2 0 1 0 1 1\n" +
+                    "0 1 1 0 2 1 0 1 0 1\n" +
+                    "0 0 0 1 0 1 1 0 1 0\n" +
+                    "1 1 1 0 1 2 2 2 0 1\n" +
+                    "1 1 0 1 0 1 0 1 1 0\n" +
+                    "1 0 1 0 1 1 2 0 1 0\n" +
+                    "0 0 0 0 1 0 2 1 1 0\n" +
+                    "1 0 1 1 0 0 2 1 0 0\n" +
+                    "1 1 0 1 0 1 0 1 1 0\n" +
+                    "0 1 1 0 0 0 1 1 0 1",
+                    4, "(6,0) (6,1) (6,2) (6,3) (4,9) (5,9) (6,9) (7,9) (8,9)",
+                    new Dictionary<ShipKind, GridCoordinate[]>
+                    {
+                        {
+                            ShipKind.PatrolBoat,
+                            new GridCoordinate[] {
+                                new GridCoordinate(0, 4),
+                                new GridCoordinate(1, 5)
+                            }
+                        },
+                        {
+                            ShipKind.Destroyer,
+                            new GridCoordinate[] {
+                                new GridCoordinate(3, 5),
+                                new GridCoordinate(3, 6),
+                                new GridCoordinate(3, 7)
+                            }
+                        },
+                        {
+                            ShipKind.Submarine,
+                            new GridCoordinate[] {
+                                new GridCoordinate(5, 6),
+                                new GridCoordinate(6, 6),
+                                new GridCoordinate(7, 6),
+                            }
+                        }
+                    });
+            }
+        }
+
+        private void RegisterSunkenShip(ShipKind sunkenShipKind, GridCoordinate[] coordinates)
+        {
+            // Get ship squares
+            IGridSquare[] squares = coordinates.Select(c =>
+            {
+                GridSquare square = new GridSquare(c);
+                square.Status = GridSquareStatus.Hit;
+                return square;
+            }).ToArray();
+            var shipBuilder = new ShipBuilder(sunkenShipKind).WithSquares(squares);
             var ship = shipBuilder.Build();
 
             for (var index = 0; index < ship.Squares.Length - 1; index++)
